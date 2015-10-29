@@ -416,6 +416,19 @@ public class ASMSerializerFactory implements Opcodes {
         Label end = new Label();
 
         int size = getters.size();
+        // 直接强制使用JavaBeanSerializer的write方法，以后再优化 TODO
+        {
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitFieldInsn(GETFIELD, context.getClassName(), "nature", "Lcom/alibaba/fastjson/serializer/JavaBeanSerializer;");
+            mw.visitVarInsn(ALOAD, 1);
+            mw.visitVarInsn(ALOAD, 2);
+            mw.visitVarInsn(ALOAD, 3);
+            mw.visitVarInsn(ALOAD, 4);
+            mw.visitVarInsn(ILOAD, 5);
+            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/JavaBeanSerializer", "write",
+                    "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
+            mw.visitInsn(RETURN);
+        }
 
         {
             // 格式化输出不走asm 优化

@@ -68,6 +68,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      */
     public static String DUMP_CLASS           = null;
 
+    public static int DEPTH = 2;
+
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();

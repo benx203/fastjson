@@ -104,6 +104,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
             return;
         }
 
+        if(out.getCurrentDepth() == JSON.DEPTH){
+            writeNullObj(serializer, object, features);
+            return;
+        }
+
         final FieldSerializer[] getters;
 
         if (out.isEnabled(SerializerFeature.SortField)) {
@@ -121,6 +126,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
             final char startSeperator = writeAsArray ? '[' : '{';
             final char endSeperator = writeAsArray ? ']' : '}';
             out.append(startSeperator);
+
+            out.incrementCurrentDepth();
 
             if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.incrementIndent();
@@ -154,7 +161,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         }
                     }
                 }
-                
+
                 if (serializer.isEnabled(SerializerFeature.IgnoreNonFieldGetter)) {
                     if (field == null) {
                         continue;
@@ -164,7 +171,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 if (!FilterUtils.applyName(serializer, object, fieldSerializer.getName())) {
                     continue;
                 }
-                
+
                 if (!FilterUtils.applyLabel(serializer, fieldSerializer.getLabel())) {
                     continue;
                 }
@@ -249,6 +256,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             }
 
             out.append(endSeperator);
+            out.decrementCurrentDepth();
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
         } finally {
@@ -272,6 +280,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         serializer.writeReference(object);
         return true;
+    }
+
+    public void writeNullObj(JSONSerializer serializer, Object object, int fieldFeatures) {
+        serializer.writeNullObj(object);
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {
@@ -298,7 +310,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         return writeAsArray;
     }
-    
+
     public Map<String, FieldSerializer> getGetterMap() {
         if (getterMap == null) {
             HashMap<String, FieldSerializer> map = new HashMap<String, FieldSerializer>(getters.length);
@@ -309,24 +321,24 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
         return getterMap;
     }
-    
+
     public Object getFieldValue(Object object, String name) throws Exception {
         Map<String, FieldSerializer> map = getGetterMap();
-        
+
         FieldSerializer getter = map.get(name);
         if (getter == null) {
             return null;
         }
-        
+
         return getter.getPropertyValue(object);
     }
-    
+
     public List<Object> getFieldValues(Object object) throws Exception {
         List<Object> fieldValues = new ArrayList<Object>(sortedGetters.length);
         for (FieldSerializer getter : sortedGetters) {
             fieldValues.add(getter.getPropertyValue(object));
         }
-        
+
         return fieldValues;
     }
 }

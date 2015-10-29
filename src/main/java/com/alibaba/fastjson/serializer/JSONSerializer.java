@@ -216,6 +216,11 @@ public class JSONSerializer {
         return;
     }
 
+    public void writeNullObj(Object object) {
+        out.write("{}");
+        return;
+    }
+
     public List<ValueFilter> getValueFilters() {
         if (valueFilters == null) {
             valueFilters = new ArrayList<ValueFilter>();

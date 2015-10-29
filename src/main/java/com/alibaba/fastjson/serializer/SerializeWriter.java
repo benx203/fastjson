@@ -34,6 +34,8 @@ import com.alibaba.fastjson.util.IOUtils;
  */
 public final class SerializeWriter extends Writer {
 
+    private int currentDepth = 0;
+
     /**
      * The buffer where data is stored.
      */
@@ -49,6 +51,18 @@ public final class SerializeWriter extends Writer {
     private int                                             features;
 
     private final Writer                                    writer;
+
+    public int getCurrentDepth() {
+        return currentDepth;
+    }
+
+    public void incrementCurrentDepth() {
+        currentDepth++;
+    }
+
+    public void decrementCurrentDepth() {
+        currentDepth--;
+    }
 
     public SerializeWriter(){
         this((Writer) null);
